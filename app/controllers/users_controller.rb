@@ -32,6 +32,7 @@ class UsersController < ApplicationController
   def delete
     Book.find(params[:id]).destroy
     redirect_to :action => 'index'
+  end 
 
   def user_params
     params.require(:users).permit( :email, :password, :name)
