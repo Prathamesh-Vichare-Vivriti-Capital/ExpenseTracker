@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
 
   def index
-
+    @users = User.all
   end
 
   def show
@@ -15,26 +15,26 @@ class UsersController < ApplicationController
     if @user.save
       redirect_to :action => 'index'
     else
-      render :action => 'new'
+      render :action => 'index'
     end
   end
 
 
   def update
     @user = User.find(params[:id])
-    if @user.update_attribute(user_params)
+    if @user.update_attributes(user_params)
       redirect_to :action => 'show', :id => @user
     else
-      render :action => 'edit'
+      render :action => 'index'
     end
   end
 
-  def delete
+  def destroy
     User.find(params[:id]).destroy
     redirect_to :action => 'index'
   end
 
   def user_params
-    params.require(:users).permit( :email, :password, :name)
+    params.permit( :email, :password, :name)
   end
 end
