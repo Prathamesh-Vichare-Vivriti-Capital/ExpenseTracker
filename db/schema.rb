@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_16_125251) do
+ActiveRecord::Schema.define(version: 2020_06_17_044422) do
 
   create_table "bills", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -21,6 +21,8 @@ ActiveRecord::Schema.define(version: 2020_06_16_125251) do
     t.time "time"
     t.text "description"
     t.string "status"
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_bills_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -35,4 +37,5 @@ ActiveRecord::Schema.define(version: 2020_06_16_125251) do
     t.index ["admin_id"], name: "index_users_on_admin_id"
   end
 
+  add_foreign_key "bills", "users"
 end
