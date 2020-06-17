@@ -11,7 +11,7 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
-
+    @user.employment_status = 'working'
     if @user.save
       redirect_to :action => 'index'
     else
@@ -36,5 +36,10 @@ class UsersController < ApplicationController
 
   def user_params
     params.permit( :email, :password, :name)
+  end
+
+  def show_all_bills
+    @admin = User.find(params[:id])
+    @users = @admin.employees
   end
 end

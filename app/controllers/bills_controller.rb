@@ -11,13 +11,19 @@ class BillsController < ApplicationController
 
 
   def create
-    @bill = Bill.new(bill_params)
-    @bill.user_id = params[:user_id]
-
-    if @bill.save
-      redirect_to :action => 'index', :controller => 'bills'
+    @user = User.find(params[:user_id])
+    if @user.employment_status == "working"
+      @bill = Bill.new(bill_params)
+      @bill.user_id = params[:user_id]
+      @bill.status = 'pending'
+      if @bill.save
+        redirect_to :action => 'index', :controller => 'bills'
+      else
+        render :action => 'index', :controller => 'bills'
+      end
     else
-      render :action => 'index', :controller => 'bills'
+      #render :json => {:out => 'Sorry you are not eligible'}.to_json
+      render :inline => "<%= 'Sorry, you are not eligible.' %>"
     end
   end
 
@@ -33,7 +39,6 @@ class BillsController < ApplicationController
 
   def destroy
     Bill.find(params[:id]).destroy
-    redirect_to :action => 'index'
   end
 
   def bill_params
