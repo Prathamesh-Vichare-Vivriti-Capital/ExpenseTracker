@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
 
   def index
-    @users = User.all
+    @users = Admin.find(params[:admin_id]).users
   end
 
   def show
@@ -11,6 +11,7 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
+    @user.admin_id = params[:admin_id]
     @user.employment_status = 'working'
     if @user.save
       redirect_to :action => 'index'
@@ -31,15 +32,10 @@ class UsersController < ApplicationController
 
   def destroy
     User.find(params[:id]).destroy
-    redirect_to :action => 'index'
   end
 
   def user_params
     params.permit( :email, :password, :name)
   end
 
-  def show_all_bills
-    @admin = User.find(params[:id])
-    @users = @admin.employees
-  end
 end

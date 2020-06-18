@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_17_101130) do
+ActiveRecord::Schema.define(version: 2020_06_17_122851) do
+
+  create_table "admins", force: :cascade do |t|
+    t.string "email"
+    t.string "password"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "bills", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -28,7 +36,6 @@ ActiveRecord::Schema.define(version: 2020_06_17_101130) do
     t.string "email", null: false
     t.string "password", null: false
     t.string "name", default: "", null: false
-    t.string "role"
     t.string "employment_status"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -37,4 +44,5 @@ ActiveRecord::Schema.define(version: 2020_06_17_101130) do
   end
 
   add_foreign_key "bills", "users"
+  add_foreign_key "users", "admins"
 end
