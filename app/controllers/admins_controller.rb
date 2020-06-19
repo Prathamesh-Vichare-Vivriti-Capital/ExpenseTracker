@@ -5,17 +5,14 @@ class AdminsController < ApplicationController
   # GET /admins.json
   def index
     @admins = Admin.all
+    render json: @admins
   end
 
   # GET /admins/1
   # GET /admins/1.json
   def show
-  @bills = Admin.find(params[:id]).bills.where(status: 'pending')
-    if params[:user_id]
-      @bills = @bills.where(user_id: params[:user_id])
-    elsif params[:invoice_number]
-      @bills = @bills.where(invoice_number: params[:invoice_number])
-    end
+    @admin = Admin.find(params[:id])
+    render json: @admin
   end
 
   # GET /admins/new
@@ -32,39 +29,41 @@ class AdminsController < ApplicationController
   def create
     @admin = Admin.new(admin_params)
 
-    respond_to do |format|
-      if @admin.save
-        format.html { redirect_to @admin, notice: 'Admin was successfully created.' }
-        format.json { render :show, status: :created, location: @admin }
-      else
-        format.html { render :new }
-        format.json { render json: @admin.errors, status: :unprocessable_entity }
-      end
+    if @admin.save
+      redirect_to :action => 'index'
+    else
+      render :inline => "<%= 'Sorry, not saved' %>"
     end
   end
 
   # PATCH/PUT /admins/1
   # PATCH/PUT /admins/1.json
   def update
-    respond_to do |format|
-      if @admin.update(admin_params)
-        format.html { redirect_to @admin, notice: 'Admin was successfully updated.' }
-        format.json { render :show, status: :ok, location: @admin }
-      else
-        format.html { render :edit }
-        format.json { render json: @admin.errors, status: :unprocessable_entity }
-      end
+    if params[:bill_id]
+      @bill = Bill.find(params[:bill_id])
+      @bill.status = params[:status]
+      @bill.save
+    elsif params[:employment_status]
+      @user = User.find(params[:user_id])
+      @user.employment_status = params[:employment_status]
+      @user.save
     end
+
   end
 
   # DELETE /admins/1
   # DELETE /admins/1.json
   def destroy
     @admin.destroy
-    respond_to do |format|
-      format.html { redirect_to admins_url, notice: 'Admin was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+  end
+
+  def bills
+    @bills = Admin.find(params[:id]).bills.where(status: 'pending')
+      if params[:user_id]
+        @bills = @bills.where(user_id: params[:user_id])
+      elsif params[:invoice_number]
+        @bills = @bills.where(invoice_number: params[:invoice_number])
+      end
   end
 
   private

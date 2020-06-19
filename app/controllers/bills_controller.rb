@@ -5,6 +5,7 @@ class BillsController < ApplicationController
     @bills = @user.bills
   end
 
+
   def show
     @bill = Bill.find(params[:id])
   end
@@ -16,10 +17,11 @@ class BillsController < ApplicationController
       @bill = Bill.new(bill_params)
       @bill.user_id = params[:user_id]
       @bill.status = 'pending'
+      @bill.documents.attach(params[:documents])
       if @bill.save
         redirect_to :action => 'index', :controller => 'bills'
       else
-        render :action => 'index', :controller => 'bills'
+        render :inline => "<%= 'Sorry, not saved' %>"
       end
     else
       #render :json => {:out => 'Sorry you are not eligible'}.to_json
@@ -33,7 +35,7 @@ class BillsController < ApplicationController
     if @bill.update_attributes(bill_params)
       redirect_to :action => 'show', :id => @bill
     else
-      render :action => 'index'
+      render :inline => "<%= 'Sorry, not saved' %>"
     end
   end
 
@@ -42,7 +44,7 @@ class BillsController < ApplicationController
   end
 
   def bill_params
-    params.permit( :invoice_number, :amount, :date, :time, :description)
+    params.permit( :invoice_number, :amount, :date, :description, :documents)
   end
 
 end

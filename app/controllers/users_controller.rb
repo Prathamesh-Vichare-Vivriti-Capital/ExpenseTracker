@@ -16,7 +16,7 @@ class UsersController < ApplicationController
     if @user.save
       redirect_to :action => 'index'
     else
-      render :action => 'index'
+      render :inline => "<%= 'Sorry, not saved' %>"
     end
   end
 
@@ -26,7 +26,7 @@ class UsersController < ApplicationController
     if @user.update_attributes(user_params)
       redirect_to :action => 'show', :id => @user
     else
-      render :action => 'index'
+      render :inline => "<%= 'Sorry, not saved' %>"
     end
   end
 
