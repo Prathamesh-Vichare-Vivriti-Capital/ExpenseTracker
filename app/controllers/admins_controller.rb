@@ -11,8 +11,6 @@ class AdminsController < ApplicationController
   # GET /admins/1
   # GET /admins/1.json
   def show
-    @admin = Admin.find(params[:id])
-    render json: @admin
   end
 
   # GET /admins/new
@@ -30,7 +28,7 @@ class AdminsController < ApplicationController
     @admin = Admin.new(admin_params)
 
     if @admin.save
-      redirect_to :action => 'index'
+      render :show, :id => @admin
     else
       render :inline => "<%= 'Sorry, not saved' %>"
     end

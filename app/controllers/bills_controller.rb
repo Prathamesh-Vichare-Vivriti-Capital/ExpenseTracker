@@ -19,7 +19,7 @@ class BillsController < ApplicationController
       @bill.status = 'pending'
       @bill.documents.attach(params[:documents])
       if @bill.save
-        redirect_to :action => 'index', :controller => 'bills'
+        render :show, :id => @bill
       else
         render :inline => "<%= 'Sorry, not saved' %>"
       end
@@ -33,7 +33,7 @@ class BillsController < ApplicationController
   def update
     @bill = Bill.find(params[:id])
     if @bill.update_attributes(bill_params)
-      redirect_to :action => 'show', :id => @bill
+      render :show, :id => @bill
     else
       render :inline => "<%= 'Sorry, not saved' %>"
     end
@@ -43,8 +43,9 @@ class BillsController < ApplicationController
     Bill.find(params[:id]).destroy
   end
 
-  def bill_params
-    params.permit( :invoice_number, :amount, :date, :description, :documents)
-  end
+  private
+    def bill_params
+      params.permit( :invoice_number, :amount, :date, :description, :documents)
+    end
 
 end

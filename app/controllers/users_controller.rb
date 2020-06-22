@@ -14,7 +14,7 @@ class UsersController < ApplicationController
     @user.admin_id = params[:admin_id]
     @user.employment_status = 'working'
     if @user.save
-      redirect_to :action => 'index'
+      redirect_to :action => 'show', :id => @user
     else
       render :inline => "<%= 'Sorry, not saved' %>"
     end
@@ -24,7 +24,7 @@ class UsersController < ApplicationController
   def update
     @user = User.find(params[:id])
     if @user.update_attributes(user_params)
-      redirect_to :action => 'show', :id => @user
+      render :show, :id => @user
     else
       render :inline => "<%= 'Sorry, not saved' %>"
     end
@@ -34,8 +34,9 @@ class UsersController < ApplicationController
     User.find(params[:id]).destroy
   end
 
-  def user_params
-    params.permit( :email, :password, :name)
-  end
+  private
+    def user_params
+      params.permit( :email, :password, :name)
+    end
 
 end
