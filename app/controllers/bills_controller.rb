@@ -1,8 +1,17 @@
 class BillsController < ApplicationController
 
   def index
-    @user = User.find(params[:user_id])
-    @bills = @user.bills
+    if params[:user_id]
+      @user = User.find(params[:user_id])
+      @bills = @user.bills
+    elsif params[:admin_id]
+      @bills = Admin.find(params[:admin_id]).bills.where(status: 'pending')
+      if params[:user_id]
+        @bills = @bills.where(user_id: params[:user_id])
+      elsif params[:invoice_number]
+        @bills = @bills.where(invoice_number: params[:invoice_number])
+      end
+    end
   end
 
 
@@ -16,8 +25,8 @@ class BillsController < ApplicationController
     if @user.employment_status == "working"
       @bill = Bill.new(bill_params)
       @bill.user_id = params[:user_id]
-      @bill.status = 'pending'
       @bill.documents.attach(params[:documents])
+      @bill = InvoiceValidator.new(@bill).check
       if @bill.save
         render :show, :id => @bill
       else

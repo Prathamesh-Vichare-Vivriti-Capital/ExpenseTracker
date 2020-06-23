@@ -5,9 +5,7 @@ Rails.application.routes.draw do
     resources :comments, only: [:create,:index]
   end
   resources :admins,concerns: :commentable, defaults: {format: :json}, shallow: true do
-    member do
-      get 'bills'
-    end
+    resources :bills, only: [:index]
     resources :users,concerns: :commentable do
       resources :bills do
         resources :comments

@@ -55,14 +55,6 @@ class AdminsController < ApplicationController
     @admin.destroy
   end
 
-  def bills
-    @bills = Admin.find(params[:id]).bills.where(status: 'pending')
-      if params[:user_id]
-        @bills = @bills.where(user_id: params[:user_id])
-      elsif params[:invoice_number]
-        @bills = @bills.where(invoice_number: params[:invoice_number])
-      end
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
