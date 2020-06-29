@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_22_075326) do
+ActiveRecord::Schema.define(version: 2020_06_26_060828) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -35,10 +35,11 @@ ActiveRecord::Schema.define(version: 2020_06_22_075326) do
 
   create_table "admins", force: :cascade do |t|
     t.string "email"
-    t.string "password"
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "password_digest"
+    t.index ["email"], name: "index_admins_on_email", unique: true
   end
 
   create_table "bills", force: :cascade do |t|
@@ -50,6 +51,7 @@ ActiveRecord::Schema.define(version: 2020_06_22_075326) do
     t.text "description"
     t.string "status"
     t.integer "user_id", null: false
+    t.float "reimbursement_amount"
     t.index ["user_id"], name: "index_bills_on_user_id"
   end
 
@@ -65,13 +67,14 @@ ActiveRecord::Schema.define(version: 2020_06_22_075326) do
 
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
-    t.string "password", null: false
     t.string "name", default: "", null: false
     t.string "employment_status"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "admin_id"
+    t.string "password_digest"
     t.index ["admin_id"], name: "index_users_on_admin_id"
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

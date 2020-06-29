@@ -1,0 +1,7 @@
+<h1> Hi <%= @bill.user.name %>, your bill has been <%= @bill.status %>.
+  <% if (@bill.status == "approved") and (@bill.reimbursement_amount == nil) %>
+    <p> The reimbursement amount is <%= @bill.amount %> </p>
+  <% elsif (@bill.status == "approved") %>
+    <p> The reimbursement amount is <%= @bill.reimbursement_amount %> </p>
+  <% end %>
+</h1>
