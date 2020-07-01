@@ -1,6 +1,6 @@
 json.user @bills do |bill|
   json.id bill.id
-  json.invoice bill.invoice_number
+  json.invoice_number bill.invoice_number
   json.amount bill.amount
   json.status bill.status
   json.documents_attached bill.documents.attached?

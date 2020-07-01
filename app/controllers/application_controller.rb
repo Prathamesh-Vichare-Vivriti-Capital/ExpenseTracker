@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   skip_before_action :verify_authenticity_token
+  include Pundit
 
   before_action :authorized
   helper_method :current_user
@@ -24,5 +25,15 @@ class ApplicationController < ActionController::Base
   def current_user?(user)
     user == current_user
   end
+
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
+  private
+
+    def user_not_authorized
+      #flash[:warning] = "You are not authorized to perform this action."
+      render json: {"message": "You are not permitted"}.to_json
+      #redirect_to(request.referrer || '/')
+    end
 
 end

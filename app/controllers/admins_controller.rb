@@ -1,21 +1,19 @@
 class AdminsController < ApplicationController
-  before_action :set_admin, only: [:show, :update, :destroy]
+  #before_action :set_admin, only: [:show, :update, :destroy]
 
 
   # GET /admins
   # GET /admins.json
   def index
-    if current_user.is_a?(Admin)
-      @admins = Admin.all
-      render json: @admins
-    else
-      render json: { error: "Not permitted."}.to_json
-    end
+    authorize current_user, :create?, policy_class: AdminPolicy
+    @admins = Admin.all
+    render json: @admins
   end
 
   # GET /admins/1
   # GET /admins/1.json
   def show
+    @admin = authorize current_user, :create?, policy_class: AdminPolicy
   end
 
   # GET /admins/new
@@ -30,7 +28,7 @@ class AdminsController < ApplicationController
   # POST /admins
   # POST /admins.json
   def create
-    current_user.is_a?(Admin) ? (@admin = Admin.new(admin_params)) : (return(render json: { error: "Not permitted."}.to_json))
+    @admin = authorize Admin.new(admin_params), policy_class:AdminPolicy
     if @admin.save
       session[:admin_id] = @admin.id
       redirect_to "/"
@@ -42,8 +40,9 @@ class AdminsController < ApplicationController
   # PATCH/PUT /admins/1
   # PATCH/PUT /admins/1.json
   def update                        #change bill status or employment_status
-    if params[:bill_id] and (Bill.find(params[:bill_id]).user.admin.id == current_user.id)
-      @bill = Bill.find(params[:bill_id])
+    authorize current_user, :create?, policy_class: AdminPolicy
+    if params[:bill_id]
+      @bill = authorize Bill.find(params[:bill_id]), :status_update?
       @bill.status = params[:status]
       if (params[:reimbursement_amount]).abs > @bill.amount
         @bill.reimbursement_amount = @bill.amount
@@ -57,8 +56,7 @@ class AdminsController < ApplicationController
         render json: {error: "Not saved"}.to_json
       end
     elsif params[:employment_status]
-      @user = User.find(params[:user_id])
-      return(render json: { error: "Not permitted."}.to_json) if !(@user.admin.id == current_user.id)
+      @user = authorize User.find(params[:user_id]), :employment_status_update?
       @user.employment_status = params[:employment_status]
       if @user.save
         render json: {message: "Saved"}.to_json
@@ -73,19 +71,12 @@ class AdminsController < ApplicationController
   # DELETE /admins/1
   # DELETE /admins/1.json
   def destroy
-    @admin.destroy
+    authorize current_user, :create?, policy_class: AdminPolicy
+    current_user.destroy
   end
 
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_admin
-      if current_user?(Admin.find(params[:id]))
-        @admin = current_user
-      else
-        render json: { error: "Not permitted."}.to_json
-      end
-    end
 
     # Only allow a list of trusted parameters through.
     def admin_params
