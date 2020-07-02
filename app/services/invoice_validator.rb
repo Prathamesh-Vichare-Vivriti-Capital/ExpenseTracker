@@ -24,9 +24,9 @@ class InvoiceValidator
     end
     bill_status = JSON[response.body]["status"]
     if bill_status
-      @bill.status = "pending"
+      @bill.manage.valid
     else
-      @bill.status = "rejected"
+      @bill.manage.invalid
     end
     @bill
   end

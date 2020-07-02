@@ -18,11 +18,11 @@ class BillsController < ApplicationController
   end
 
   #users/:user_id/bills
-  def create                    #even other user route will not affect
+  def create
     @user = authorize current_user, policy_class: BillPolicy
     @bill = Bill.new(bill_params)
     @bill.user_id = @user.id
-    @bill = InvoiceValidator.new(@bill).check
+    @bill = InvoiceValidator.new(@bill).check    #service to valid the invoice
     if @bill.save
       render :show, :id => @bill
     else
@@ -30,16 +30,17 @@ class BillsController < ApplicationController
     end
   end
 
-
+  #bills/:id
   def update
     @bill = authorize Bill.find(params[:id])
-    if @bill.update_attributes(bill_params)
+    if (@bill.status == "approved") and @bill.update_attributes(bill_params)
       render :show, :id => @bill
     else
       render json: { error: "Not saved."}.to_json
     end
   end
 
+  #bills/:id 
   def destroy
     @bill = authorize Bill.find(params[:id]), :update?
     @bill.destroy
@@ -50,5 +51,7 @@ class BillsController < ApplicationController
     def bill_params
       params.permit( :invoice_number, :amount, :date, :description, :documents)
     end
+
+
 
 end
