@@ -21,6 +21,7 @@ gem "letter_opener", :group => :development
 gem 'pundit'
 gem 'finite_machine'
 gem 'jwt'
+gem 'simple_command'
 
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 4.0'
