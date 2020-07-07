@@ -1,8 +1,8 @@
 class UsersController < ApplicationController
+  before_action :check_auth, only: [:index, :create, :update, :destroy]
 
   #/admins/:admin_id/users     only admin access
   def index
-    authorize current_user, :create?, policy_class: UserPolicy
     @users = current_user.users
   end
 
@@ -15,38 +15,40 @@ class UsersController < ApplicationController
     end
   end
 
-  #admin/:admin_id/users    only admin can create
+  #admin/:admin_id/users    (only admin)
   def create
-    authorize params[:admin_id], policy_class: UserPolicy
     @user = User.new(user_params)
     @user.admin_id = current_user.id
     @user.employment_status = 'working'
     if @user.save
       render :show, :id => @user
     else
-      render json: {error: "Not saved."}.to_json
+      render json: {error: "Not saved."}.to_json, status: 400
     end
   end
 
 
   def update
-    @user = authorize current_user, policy_class: UserPolicy
+    @user = current_user
     if @user.update_attributes(user_params)
       render :show, :id => @user
     else
-      render json: { error: "Not saved."}.to_json
+      render json: { error: "Not saved."}.to_json, status: 400
     end
   end
 
   def destroy
-    @user = authorize current_user, :update?, policy_class: UserPolicy
-    @user.destroy
+    current_user.destroy
   end
 
   private
 
     def user_params
       params.permit( :email, :password, :name)
+    end
+
+    def check_auth
+      authorize current_user, policy_class: UserPolicy
     end
 
 end

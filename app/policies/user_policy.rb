@@ -8,7 +8,15 @@ class UserPolicy < ApplicationPolicy
     user.is_a?(Admin)
   end
 
+  def index?
+    user.is_a?(Admin)
+  end
+
   def update?
+    user.is_a?(User)
+  end
+
+  def destroy?
     user.is_a?(User)
   end
 

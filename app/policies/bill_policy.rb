@@ -1,5 +1,15 @@
 class BillPolicy < ApplicationPolicy
 
+  class Scope < Scope
+    def resolve
+      if user.is_a?(Admin)
+        scope.where({user_id: user.users.ids})
+      else
+        scope.where(user_id: user.id)
+      end
+    end
+  end
+
   def show?
     (user == record.user) || (user == record.user.admin)
   end
@@ -10,6 +20,14 @@ class BillPolicy < ApplicationPolicy
 
   def update?
     user == record.user
+  end
+
+  def destroy?
+    user == record.user
+  end
+
+  def preview?
+    (user == record.user) || (user == record.user.admin)
   end
 
   def status_update?

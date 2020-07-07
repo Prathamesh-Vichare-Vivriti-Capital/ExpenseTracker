@@ -1,10 +1,12 @@
 class CommentsController < ApplicationController
+  skip_after_action :verify_authorized, only: [:index] 
 
   #admins/:admin_id/comments
   #users/:user_id/comments
   def index
     @comments = current_user.comments
     if params[:bill_id]
+      authorize Bill.find(params[:bill_id]), :show?, policy_class: BillPolicy
       @comments = Comment.all.where(bill_id: params[:bill_id])
     end
   end
@@ -26,7 +28,7 @@ class CommentsController < ApplicationController
       CommentNotificationMailer.notify(current_user,Bill.find(comment_params[:bill_id])).deliver
       render :show, :id => @comment
     else
-      render json: { error: "Not saved."}.to_json
+      render json: { error: "Not saved."}.to_json, status: 400
     end
   end
 

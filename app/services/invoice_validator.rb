@@ -4,32 +4,18 @@ class InvoiceValidator
   end
 
   def check
-    require 'net/http'
-    require 'uri'
-    require 'json'
-
-    uri = URI.parse("https://my.api.mockaroo.com/invoices.json")
-    request = Net::HTTP::Post.new(uri)
-    request["X-Api-Key"] = "b490bb80"
-    request.body = JSON.dump({
-      "invoice_id" => @bill.invoice_number
-    })
-
-    req_options = {
-      use_ssl: uri.scheme == "https",
-    }
-
-    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-      http.request(request)
+    url = 'https://my.api.mockaroo.com/invoices.json'
+    conn = Faraday.new do |c|
+      c.use FaradayMiddleware::ParseJson, content_type: "application/json"
+      c.headers['X-API-Key']= 'b490bb80'
     end
-    bill_status = JSON[response.body]["status"]
-    if bill_status
+    response = conn.post(url,{invoice_id: @bill.invoice_number}.to_json)
+    if response.body["status"]
       @bill.manage.valid
     else
       @bill.manage.invalid
     end
     @bill
   end
-
 
 end

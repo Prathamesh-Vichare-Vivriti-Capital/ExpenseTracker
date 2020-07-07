@@ -1,15 +1,17 @@
 class BillsController < ApplicationController
-  # before_action :set_bill, only: [:update, :destroy]
-
-
+  before_action :auth_check, only: [:update, :destroy]
+  skip_after_action :verify_authorized, only: [:index]
 
   #admins/:admin_id/bills
   #users/:user_id/bills
   def index
-    @bills = current_user.bills
-    @bills = @bills.where(status: params[:status]) if (params[:status])
-    @bills = @bills.where(user_id: params[:user_id]) if (params[:user_id] and params[:admin_id])    #for filtering if user_id given
+    @bills = policy_scope(Bill)
+    @bills = @bills.where(status: params[:status]) if (params[:status])  #fiter wrt status
+    @bills = @bills.where(user_id: params[:user_id]) if (params[:user_id] and current_user.is_a?(Admin))    #filter wrt user_id (only admin)
     @bills = @bills.where(invoice_number: params[:invoice_number]) if params[:invoice_number]
+    if params[:name] and current_user.is_a?(Admin)    #filter wrt User.name (only admin)
+      @bills = @bills.where({user_id: current_user.users.where(name: params[:name]).ids})
+    end
   end
 
   #bills/:bill_id
@@ -26,24 +28,29 @@ class BillsController < ApplicationController
     if @bill.save
       render :show, :id => @bill
     else
-      render json: { error: "Not saved."}.to_json
+      render json: { error: "Not saved."}.to_json, status: 400
     end
   end
 
   #bills/:id
   def update
-    @bill = authorize Bill.find(params[:id])
     if (@bill.status == "approved") and @bill.update_attributes(bill_params)
       render :show, :id => @bill
     else
-      render json: { error: "Not saved."}.to_json
+      render json: { error: "Not saved."}.to_json, status: 400
     end
   end
 
-  #bills/:id 
+  #bills/:id
   def destroy
-    @bill = authorize Bill.find(params[:id]), :update?
     @bill.destroy
+  end
+
+  def preview
+    @bill = authorize Bill.find(params[:id])
+    @bill.documents.each do |doc|
+      send_data doc.download, filename: doc.filename.sanitized, content_type: doc.content_type, disposition: 'inline'
+    end
   end
 
   private
@@ -52,6 +59,8 @@ class BillsController < ApplicationController
       params.permit( :invoice_number, :amount, :date, :description, :documents)
     end
 
-
+    def auth_check
+      @bill = authorize Bill.find(params[:id])
+    end
 
 end
