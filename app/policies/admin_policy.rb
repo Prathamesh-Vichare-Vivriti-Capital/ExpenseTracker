@@ -9,20 +9,20 @@ class AdminPolicy < ApplicationPolicy
   end
 
   def index?
-    user.is_a?(Admin)
+    user == record
   end
 
   def show?
-    user.is_a?(Admin)
+    user == record
   end
 
   def destroy?
-    user.is_a?(Admin)
+    user == record
   end
 
 
   def update?
-    user.is_a?(Admin)
+    user == record
   end
 
 end

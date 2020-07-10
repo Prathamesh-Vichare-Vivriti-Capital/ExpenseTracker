@@ -1,44 +1,42 @@
 class UsersController < ApplicationController
-  before_action :check_auth, only: [:index, :create, :update, :destroy]
+  before_action :check_auth_user, only: [ :show, :update, :destroy]
+  before_action :check_auth_admin, only: [ :index, :create]
 
-  #/admins/:admin_id/users     only admin access
+
+  #/admins/:admin_id/users  (only admin)
   def index
-    @users = current_user.users
+    @users = @admin.users
   end
 
   def show
-    authorize params[:id], policy_class: UserPolicy
-    if current_user.is_a?(User)
-      @user = current_user
-    else
-      @user = User.find(params[:id])
-    end
   end
 
-  #admin/:admin_id/users    (only admin)
+  #admin/:admin_id/users  (only admin)
   def create
     @user = User.new(user_params)
-    @user.admin_id = current_user.id
+    @user.admin_id = @admin.id
     @user.employment_status = 'working'
-    if @user.save
-      render :show, :id => @user
-    else
-      render json: {error: "Not saved."}.to_json, status: 400
-    end
+    @user.save!
+    render :show, :id => @user
   end
 
 
   def update
-    @user = current_user
-    if @user.update_attributes(user_params)
-      render :show, :id => @user
-    else
-      render json: { error: "Not saved."}.to_json, status: 400
-    end
+    @user.update_attributes!(user_params)
+    render :show, :id => @user
   end
 
   def destroy
-    current_user.destroy
+    @user.destroy
+  end
+
+  def employment_status_update  #(only admin)
+    @user = authorize User.find(params[:user_id])
+
+    @user.employment_status = params[:employment_status]
+
+    @user.save!
+    render :show , :id => @user
   end
 
   private
@@ -47,8 +45,12 @@ class UsersController < ApplicationController
       params.permit( :email, :password, :name)
     end
 
-    def check_auth
-      authorize current_user, policy_class: UserPolicy
+    def check_auth_user
+      @user = authorize User.find(params[:id])
+    end
+
+    def check_auth_admin
+      @admin = authorize Admin.find(params[:admin_id]), policy_class: UserPolicy
     end
 
 end

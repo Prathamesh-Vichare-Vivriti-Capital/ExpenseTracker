@@ -1,11 +1,15 @@
 class CommentPolicy < ApplicationPolicy
 
+  def index?
+    user == record
+  end
+
   def show?
-    (record.commentable_id == user.id) and (record.commentable_type == user.class.name)
+    user == record.commentable
   end
 
   def create?
-    (record.user == user) or (record.user.admin == user)
+    user == record
   end
 
 end

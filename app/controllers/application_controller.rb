@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
-  skip_before_action :verify_authenticity_token
+  protect_from_forgery prepend: true
+  include Error::ErrorHandler
   include Pundit
   before_action :authenticate_request
   attr_reader :current_user
@@ -10,9 +11,7 @@ class ApplicationController < ActionController::Base
   private
 
     def user_not_authorized
-      #flash[:warning] = "You are not authorized to perform this action."
-      render json: {"message": "You are not permitted"}.to_json, status: 400
-      #redirect_to(request.referrer || '/')
+      render json: {"message": "You are not permitted"}.to_json, status: 401
     end
 
     def authenticate_request

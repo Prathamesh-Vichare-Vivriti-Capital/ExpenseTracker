@@ -1,4 +1,4 @@
-class BillPolicy < ApplicationPolicy
+class GroupBillPolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
@@ -23,19 +23,10 @@ class BillPolicy < ApplicationPolicy
   end
 
   def update?
-    user == record.user
+    (record.user == user)
   end
 
-  def destroy?
-    user == record.user
+  def add_bill_to_group?
+    (record.user == user)
   end
-
-  def preview?
-    (user == record.user) || (user == record.user.admin)
-  end
-
-  def bill_status_update?
-    record.user.admin == user
-  end
-
 end

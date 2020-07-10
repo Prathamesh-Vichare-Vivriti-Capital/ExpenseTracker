@@ -1,9 +1,11 @@
 class Bill < ApplicationRecord
+
   belongs_to :user
+  belongs_to :group_bill, optional: true
   has_many_attached :documents, :dependent => :destroy
   has_many :comments, as: :commentable, dependent: :destroy
 
-  validates :status, presence: true
+  validates_presence_of :status, :amount, :description
 
   after_find do |bill|
     manage.restore!(status.to_sym) if status.present?
@@ -27,8 +29,7 @@ class Bill < ApplicationRecord
       end
 
       handle FiniteMachine::InvalidStateError do |exception|
-        target.errors.add(:base, :invalid_state_change, message: "invalid state change")
-        raise exception
+        raise ::Error::InvalidStateError
       end
 
     end
