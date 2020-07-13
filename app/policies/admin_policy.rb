@@ -1,7 +1,7 @@
 class AdminPolicy < ApplicationPolicy
 
   def permitted_attributes
-      [:email, :name, :password_digest]
+      [:email, :name, :password]
   end
 
   def create?

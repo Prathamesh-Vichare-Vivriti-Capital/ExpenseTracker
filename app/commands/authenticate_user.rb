@@ -7,8 +7,9 @@ class AuthenticateUser
   end
 
   def call
-    return JsonWebToken.encode(user_id: user.id) if (user and user.is_a?(User))
-    return JsonWebToken.encode(admin_id: user.id) if (user and user.is_a?(Admin))
+    @user = user
+    return JsonWebToken.encode(user_id: @user.id) if (@user and @user.is_a?(User))
+    return JsonWebToken.encode(admin_id: @user.id) if (@user and @user.is_a?(Admin))
   end
 
   private

@@ -1,5 +1,5 @@
 class AdminsController < ApplicationController
-  before_action :auth_check, only: [:index, :show, :update, :destroy]
+  before_action :set_admin, only: [:index, :show, :update, :destroy]
 
   # GET /admins
   # GET /admins.json
@@ -16,12 +16,9 @@ class AdminsController < ApplicationController
   # POST /admins
   # POST /admins.json
   def create
-    #@admin = Admin.new(permitted_attributes(Admin))
     authorize Admin
-    @admin = Admin.new(admin_params)
-    # @admin.password = admin_params1["password_digest"]
-    @admin.save!
-    render :show, :id => @admin
+    @admin = Admin.create!(admin_params)
+    render :show, :id => @admin, status: 201
   end
 
   # PATCH/PUT /admins/1
@@ -33,20 +30,17 @@ class AdminsController < ApplicationController
   # DELETE /admins/1
   # DELETE /admins/1.json
   def destroy
-    @admin.destroy
+    @admin.destroy!
   end
 
 
   private
 
-    def admin_params
-      params.permit(:email, :password, :name)
-    end
-    def admin_params1
-      params.require(:admin).permit(policy(@admin).permitted_attributes)
-    end
+  def admin_params
+    params.permit(policy(Admin).permitted_attributes)
+  end
 
-    def auth_check
-      @admin = authorize Admin.find(params[:id]), policy_class: AdminPolicy
-    end
+  def set_admin
+    @admin = authorize Admin.find(params[:id]), policy_class: AdminPolicy
+  end
 end

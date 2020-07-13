@@ -11,6 +11,10 @@ module Error
         respond(e.to_s, "Validation errors", 400)
       end
 
+      rescue_from Pundit::NotAuthorizedError do |e|
+        respond(:not_permitted,"You are not permitted", 401)
+      end
+
       rescue_from CustomError do |e|
         respond(e.error,e.message,e.status)
       end
@@ -19,7 +23,7 @@ module Error
 
     private
       def respond(error, message, status)
-        render json: {error: error, message: message}.to_json, status: status
+        render json: {error => message}.to_json, status: status
       end
 
   end

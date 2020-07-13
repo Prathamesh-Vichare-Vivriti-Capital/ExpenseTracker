@@ -6,17 +6,16 @@ class ApplicationController < ActionController::Base
   attr_reader :current_user
   after_action :verify_authorized   #pundit method to check for authorize in every action
 
-  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
 
-    def user_not_authorized
-      render json: {"message": "You are not permitted"}.to_json, status: 401
-    end
+  def current_user
+    AuthorizeApiRequest.call(request.headers).result
+  end
 
-    def authenticate_request
-      @current_user = AuthorizeApiRequest.call(request.headers).result
-      render json: {error: "Not authorized"}, status: 401 unless @current_user
-    end
+  def authenticate_request
+    @current_user = AuthorizeApiRequest.call(request.headers).result
+    raise ::Error::NotAuthorizedError unless @current_user
+  end
 
 end

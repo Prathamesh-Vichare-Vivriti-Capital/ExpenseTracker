@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  before_action :check_auth_user, only: [ :show, :update, :destroy]
-  before_action :check_auth_admin, only: [ :index, :create]
+  before_action :set_user, only: [ :show, :update, :destroy, :employment_status_update]
+  before_action :set_admin, only: [ :index, :create]
 
 
   #/admins/:admin_id/users  (only admin)
@@ -13,44 +13,38 @@ class UsersController < ApplicationController
 
   #admin/:admin_id/users  (only admin)
   def create
-    @user = User.new(user_params)
-    @user.admin_id = @admin.id
-    @user.employment_status = 'working'
-    @user.save!
-    render :show, :id => @user
+    @user = @admin.users.create!(user_params)
+    render :show, :id => @user, status: 201
   end
 
 
   def update
-    @user.update_attributes!(user_params)
-    render :show, :id => @user
-  end
-
-  def destroy
-    @user.destroy
-  end
-
-  def employment_status_update  #(only admin)
-    @user = authorize User.find(params[:user_id])
-
-    @user.employment_status = params[:employment_status]
-
-    @user.save!
+    if current_user.is_a?(User)
+      @user.update_attributes!(user_params)
+    else
+      @user.employment_status = user_params[:employment_status]
+      @user.save!
+    end
     render :show , :id => @user
   end
 
+  def destroy
+    @user.destroy!
+  end
+
+
   private
 
-    def user_params
-      params.permit( :email, :password, :name)
-    end
+  def user_params
+    params.permit(policy(User).permitted_attributes)
+  end
 
-    def check_auth_user
-      @user = authorize User.find(params[:id])
-    end
+  def set_user
+    @user = authorize User.find(params[:id])
+  end
 
-    def check_auth_admin
-      @admin = authorize Admin.find(params[:admin_id]), policy_class: UserPolicy
-    end
+  def set_admin
+    @admin = authorize Admin.find(params[:admin_id]), policy_class: UserPolicy
+  end
 
 end

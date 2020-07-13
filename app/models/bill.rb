@@ -6,6 +6,7 @@ class Bill < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :destroy
 
   validates_presence_of :status, :amount, :description
+  before_save :validate_invoice #, if: Proc.new{ |bill| (bill.status == "uploaded")}
 
   after_find do |bill|
     manage.restore!(status.to_sym) if status.present?
@@ -23,6 +24,7 @@ class Bill < ApplicationRecord
       event :invalid, :uploaded => :rejected
       event :approve, :pending => :approved
       event :reject, :pending => :rejected
+      event :update_invoice, :pending => :uploaded
 
       on_enter do |event|
         target.status = event.to
@@ -32,6 +34,16 @@ class Bill < ApplicationRecord
         raise ::Error::InvalidStateError
       end
 
+    end
+  end
+
+  private
+  def validate_invoice
+    status = InvoiceValidator.new(self).check   #calling the service to valid invoice number if even
+    if status
+      self.manage.valid
+    else
+      self.manage.invalid
     end
   end
 end

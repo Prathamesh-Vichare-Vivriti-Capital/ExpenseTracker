@@ -10,6 +10,10 @@ class GroupBillPolicy < ApplicationPolicy
     end
   end
 
+  def show?
+    record.user == user
+  end
+
   def index?
     user == record
   end
@@ -19,14 +23,21 @@ class GroupBillPolicy < ApplicationPolicy
   end
 
   def create?
+    raise ::Error::NoAccessToBillError if user.is_a?(User) and (record.employment_status != "working")
     user == record
   end
 
   def update?
-    (record.user == user)
+    raise ::Error::NoAccessToBillError if user.is_a?(User) and record.user.employment_status != "working"
+    record.user == user
   end
 
   def add_bill_to_group?
-    (record.user == user)
+    raise ::Error::NoAccessToBillError if user.is_a?(User) and record.user.employment_status != "working"
+    record.user == user
+  end
+
+  def destroy?
+    record.user == user
   end
 end

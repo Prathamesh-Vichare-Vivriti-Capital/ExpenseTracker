@@ -13,16 +13,19 @@ class UserPolicy < ApplicationPolicy
   end
 
   def update?
-    user == record
+    (user == record) or (user == record.admin)
   end
 
   def destroy?
     user == record
   end
 
-  def employment_status_update?
-    record.admin == user
+  def permitted_attributes
+    if user.is_a?(User)
+      [:email, :password, :name]
+    else
+      [:email, :password, :name, :employment_status]
+    end
   end
-
 
 end

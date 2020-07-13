@@ -15,10 +15,8 @@ Rails.application.routes.draw do
       resources :group_bills do
         put 'add_bill_to_group', :on => :member
       end
-      put 'employment_status_update', :on => :member
       resources :bills do
         get 'preview', :on => :member
-        put 'bill_status_update', :on => :member
         resources :comments
       end
     end
