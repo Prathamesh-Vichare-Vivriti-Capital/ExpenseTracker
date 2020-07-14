@@ -1,86 +1,46 @@
 class AdminsController < ApplicationController
-  #before_action :set_admin, only: [:show, :update, :destroy]
-
+  before_action :set_admin, only: [:index, :show, :update, :destroy]
 
   # GET /admins
   # GET /admins.json
   def index
-    authorize current_user, :create?, policy_class: AdminPolicy
     @admins = Admin.all
-    render json: @admins
   end
 
   # GET /admins/1
   # GET /admins/1.json
   def show
-    @admin = authorize current_user, :create?, policy_class: AdminPolicy
   end
 
-  # GET /admins/new
-  def new
-    @admin = Admin.new
-  end
-
-  # GET /admins/1/edit
-  def edit
-  end
 
   # POST /admins
   # POST /admins.json
   def create
-    @admin = authorize Admin.new(admin_params), policy_class:AdminPolicy
-    if @admin.save
-      session[:admin_id] = @admin.id
-      redirect_to "/"
-    else
-      render json: {error: "Not saved"}.to_json
-    end
+    authorize Admin
+    @admin = Admin.create!(admin_params)
+    render :show, :id => @admin, status: 201
   end
 
   # PATCH/PUT /admins/1
-  # PATCH/PUT /admins/1.json
-  def update                        #change bill status or employment_status
-    authorize current_user, :create?, policy_class: AdminPolicy
-    if params[:bill_id]
-      @bill = authorize Bill.find(params[:bill_id]), :status_update?
-      @bill.status = params[:status]
-      if (params[:reimbursement_amount]).abs > @bill.amount
-        @bill.reimbursement_amount = @bill.amount
-      else
-        @bill.reimbursement_amount = (params[:reimbursement_amount]).abs
-      end
-      if @bill.save
-        CommentNotificationMailer.notify_bill_status(@bill).deliver
-        render json: {message: "Saved"}.to_json
-      else
-        render json: {error: "Not saved"}.to_json
-      end
-    elsif params[:employment_status]
-      @user = authorize User.find(params[:user_id]), :employment_status_update?
-      @user.employment_status = params[:employment_status]
-      if @user.save
-        render json: {message: "Saved"}.to_json
-      else
-        render json: {error: "Not saved"}.to_json
-      end
-    else
-      render json: { error: "Not permitted."}.to_json
-    end
+  def update
+    @admin.update_attributes!(admin_params)
+    render :show, :id => @admin
   end
 
   # DELETE /admins/1
   # DELETE /admins/1.json
   def destroy
-    authorize current_user, :create?, policy_class: AdminPolicy
-    current_user.destroy
+    @admin.destroy!
   end
 
 
   private
 
-    # Only allow a list of trusted parameters through.
-    def admin_params
-      params.permit(:email, :password, :name)
-    end
+  def admin_params
+    params.permit(policy(Admin).permitted_attributes)
+  end
 
+  def set_admin
+    @admin = authorize Admin.find(params[:id]), policy_class: AdminPolicy
+  end
 end

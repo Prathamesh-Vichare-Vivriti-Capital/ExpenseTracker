@@ -19,6 +19,14 @@ gem 'turbolinks', '~> 5'
 gem 'jbuilder', '~> 2.7'
 gem "letter_opener", :group => :development
 gem 'pundit'
+gem 'finite_machine'
+gem 'jwt'
+gem 'simple_command'
+gem 'faraday'
+gem 'faraday_middleware'
+gem 'poppler'
+gem 'mini_magick'
+gem 'image_processing'
 
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 4.0'
